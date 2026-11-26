@@ -94,7 +94,7 @@ label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 4px
 .detail-img img { width: 100%; display: block; }
 .imgs2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 
-.toast { position: fixed; left: 50%; bottom: calc(90px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 30; background: #000d; border: 1px solid var(--line); padding: 10px 16px; border-radius: 999px; font-size: 13px; }
+.toast { position: fixed; left: 50%; top: calc(64px + env(safe-area-inset-top)); transform: translateX(-50%); z-index: 30; background: #000d; border: 1px solid var(--line); padding: 10px 16px; border-radius: 999px; font-size: 13px; }
 
 /* Modo treino */
 .run { text-align: center; }
@@ -142,3 +142,7 @@ label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 4px
 .hist-row .btn { padding: 2px 8px; }
 .pos { color: var(--ok); font-size: 13px; }
 .neg { color: var(--danger); font-size: 13px; }
+
+.day-head > div:first-child { min-width: 0; flex: 1; }
+.day-head .row { flex-wrap: nowrap; flex: 0 0 auto; }
+.day-head .title { font-size: 18px; line-height: 1.2; }

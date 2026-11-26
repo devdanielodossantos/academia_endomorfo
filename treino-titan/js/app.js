@@ -133,7 +133,7 @@ function renderWeek() {
         <div class="muted small">${DAY_FULL[ui.day]} • ${day.items.length} exercícios</div>
       </div>
       <div class="row">
-        <button class="btn ${dayDone ? 'primary' : ''}" id="done-day">${dayDone ? '✓ Concluído' : 'Marcar concluído'}</button>
+        <button class="btn ${dayDone ? 'primary' : ''}" id="done-day">${dayDone ? '✓ Feito' : 'Concluir'}</button>
         <button class="btn" id="edit-day">✎</button>
       </div>
     </div>

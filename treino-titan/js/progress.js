@@ -128,7 +128,7 @@ export function renderProgress(view, toast) {
         <div class="grow"><label>Peso (kg)</label><input id="b-kg" type="text" inputmode="decimal" placeholder="${last ? fmt(last.kg) : '75,0'}"></div>
       </div>
       <div class="row">
-        ${MEASURES.map((m) => `<div class="grow"><label>${m.label} (cm)</label><input id="b-${m.key}" type="text" inputmode="decimal" placeholder="opcional"></div>`).join('')}
+        ${MEASURES.map((m) => `<div class="grow"><label>${m.label} (cm)</label><input id="b-${m.key}" type="text" inputmode="decimal" placeholder="cm"></div>`).join('')}
       </div>
       <div style="margin-top:10px"><button class="btn primary big" id="b-save">Salvar medição</button></div>
       <div class="row" style="margin-top:10px">
