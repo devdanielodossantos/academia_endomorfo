@@ -7,6 +7,7 @@ import { GROUPS, GROUP_ORDER, GROUP_TO_DB, DAY_KEYS, DAY_LABELS, DAY_FULL } from
 import { clonePlan, blankPlan } from './data/plan.js';
 import { loadImageIndex, imageFor, secondImageFor, searchDb } from './images.js';
 import { renderProgress } from './progress.js';
+import { canInstall, promptInstall, isStandalone, isIOS, onInstallChange } from './pwa.js';
 import { initFirebase, onStatus, getStatus, signIn, signOutUser } from './firebase.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -477,6 +478,7 @@ function renderAccount() {
   view.innerHTML = `
     <h2>Conta e nuvem</h2>
     <div class="card" id="fb"></div>
+    <div class="card" id="inst"></div>
     <h2>Backup manual</h2>
     <div class="card">
       <div class="row">
@@ -500,6 +502,16 @@ function renderAccount() {
     }
   };
   paint(st);
+  const paintInstall = () => {
+    const box = $('#inst'); if (!box) return;
+    if (isStandalone()) { box.innerHTML = '<b>📲 App instalado</b><p class="muted small">Você está usando o Titan como aplicativo. Funciona sem internet.</p>'; return; }
+    if (canInstall()) { box.innerHTML = '<b>📲 Instalar no celular</b><p class="muted small">Ícone na tela inicial, tela cheia e uso offline.</p><button class="btn primary big" id="do-inst">Instalar app</button>'; $('#do-inst').onclick = promptInstall; return; }
+    box.innerHTML = '<b>📲 Instalar no celular</b><p class="muted small">' + (isIOS()
+      ? 'No iPhone (Safari): toque em Compartilhar e depois em “Adicionar à Tela de Início”.'
+      : 'No Android (Chrome): menu ⋮ → “Instalar app” (ou “Adicionar à tela inicial”).') + '</p>';
+  };
+  paintInstall();
+  const offInst = onInstallChange(() => { if (ui.tab === 'conta') paintInstall(); else offInst(); });
   const off = onStatus((s) => { if (ui.tab === 'conta') paint(s); else off(); });
 
   $('#exp').onclick = () => {

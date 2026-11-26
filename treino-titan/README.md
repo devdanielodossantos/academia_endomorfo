@@ -100,12 +100,16 @@ treino-titan/
 │  ├─ app.js               # UI: Semana, Biblioteca, Cronogramas, Conta, Modo treino
 │  ├─ store.js             # estado único + localStorage + helpers (planos, logs)
 │  ├─ firebase.js          # Auth Google + sync Firestore (opcional)
+│  ├─ pwa.js               # registro do service worker + botão instalar
 │  ├─ progress.js          # aba Progresso: meta semanal, peso/medidas, comparação, carga
 │  ├─ images.js            # fotos dos exercícios (free-exercise-db, domínio público)
 │  ├─ firebase-config.js   # SUA config (criar a partir do .example)
 │  └─ data/
 │     ├─ exercises.js      # biblioteca (93 exercícios, 13 grupos) + grupos/dias
 │     └─ plan.js           # cronograma padrão Seg–Sáb + criação de planos
+├─ sw.js                   # service worker (offline)
+├─ manifest.webmanifest    # nome, cores e ícones do app instalável
+├─ icons/                  # ícones do app
 ├─ firestore.rules         # segurança por usuário
 └─ firebase.json           # hosting + regras
 ```
@@ -163,6 +167,13 @@ Fotos: [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (Unlicens
 - **Peso e medidas:** salve peso (e opcionalmente cintura, braço, peito, coxa) por data, defina uma meta de peso e compare duas datas. O app interpreta com cautela: peso sobe + cintura estável + medidas musculares subindo = sinal favorável de massa magra; cintura subindo junto sugere gordura.
 - **Evolução da carga:** por exercício, com 1RM estimado (Epley). Subir carga/reps com a mesma técnica é o melhor indicador prático de ganho de massa.
 - A balança sozinha **não** diferencia músculo de gordura. Para isso, use as medidas e/ou bioimpedância/dobras de forma consistente (mesmo horário, mesmas condições).
+
+## 6.2 App instalável (PWA) e offline
+
+- **Instalar:** Android (Chrome) → menu ⋮ → *Instalar app*; iPhone (Safari) → Compartilhar → *Adicionar à Tela de Início*. A aba **Conta** também mostra o botão quando o navegador oferece.
+- **Offline:** o app abre sem internet e salva as cargas no aparelho; ao voltar a conexão, o Firebase sincroniza. Fotos já vistas ficam em cache; as nunca abertas aparecem como emoji até ter conexão.
+- **Atualizações:** com internet, o app sempre carrega a versão nova (rede primeiro, 3 s de limite; depois usa o cache). Ao mudar a lista de arquivos do app, atualize `SHELL` em `sw.js` e, se quiser forçar limpeza do cache, troque `VERSION`.
+- **Testar local:** `npx http-server . -p 5173 -c-1` (o service worker funciona em `localhost`).
 
 ## 7. Próximo passo: Flutter (APK)
 
