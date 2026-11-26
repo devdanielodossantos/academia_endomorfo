@@ -100,6 +100,7 @@ treino-titan/
 │  ├─ app.js               # UI: Semana, Biblioteca, Cronogramas, Conta, Modo treino
 │  ├─ store.js             # estado único + localStorage + helpers (planos, logs)
 │  ├─ firebase.js          # Auth Google + sync Firestore (opcional)
+│  ├─ progress.js          # aba Progresso: meta semanal, peso/medidas, comparação, carga
 │  ├─ images.js            # fotos dos exercícios (free-exercise-db, domínio público)
 │  ├─ firebase-config.js   # SUA config (criar a partir do .example)
 │  └─ data/
@@ -140,18 +141,28 @@ treino-titan/
 |---|---|
 | Seg | Peito + Tríceps |
 | Ter | Costas + Bíceps |
-| Qua | Pernas (quadríceps) + Panturrilha + cardio leve |
+| Qua | Pernas (quadríceps) + Panturrilha |
 | Qui | Ombro + Abdômen |
 | Sex | Costas + Bíceps (variação) |
-| Sáb | Pernas (posterior + glúteo) + Peito superior + cardio leve |
+| Sáb | Pernas (posterior + glúteo) + Peito superior |
 
 Princípios usados (consenso geral de programas de hipertrofia, não uma regra rígida):
 - Compostos primeiro (8–12 reps), isoladores depois (12–15+).
-- Descanso mais curto (45–90 s) e rep ranges um pouco mais altos nos isoladores, comuns em programas para endomorfos.
+- Descansos de 45–120 s conforme o exercício (mais longos nos compostos) e repetições um pouco mais altas nos isoladores. Sem cardio no plano, pois o objetivo é só ganhar massa.
 - Volume semanal por músculo importa mais que o formato exato do split; mantenha constância e progressão de carga.
 - “Endomorfo” é uma classificação popular, não científica: trate como ponto de partida e ajuste conforme seus resultados, dieta (superávit moderado) e recuperação.
 
 Fotos: [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (Unlicense). O app casa o nome em inglês (`en`) de cada exercício com a base; se não achar, mostra um emoji — e você pode colar uma URL própria ao criar um exercício.
+
+
+## 6.1 Ciclo, rotação, metas e progresso
+
+- **Ciclo (padrão 6 meses):** a aba Semana mostra o mês do ciclo e quantos dias faltam. Em **⚙ Ciclo** você muda duração, data de início e meta semanal.
+- **Rotação automática:** ao fim do ciclo (ou quando quiser) use **Gerar novo ciclo**. Exercícios marcados com 📌 ficam; os demais são trocados por outros do mesmo grupo (composto por composto, isolador por isolador), mantendo séries/reps/descanso. O ciclo antigo continua salvo em **Planos**.
+- **Meta semanal:** o modo treino marca o dia como concluído ao terminar (ou use “Marcar concluído”). A barra mostra `feitos/meta` e a aba Progresso mostra as últimas 8 semanas.
+- **Peso e medidas:** salve peso (e opcionalmente cintura, braço, peito, coxa) por data, defina uma meta de peso e compare duas datas. O app interpreta com cautela: peso sobe + cintura estável + medidas musculares subindo = sinal favorável de massa magra; cintura subindo junto sugere gordura.
+- **Evolução da carga:** por exercício, com 1RM estimado (Epley). Subir carga/reps com a mesma técnica é o melhor indicador prático de ganho de massa.
+- A balança sozinha **não** diferencia músculo de gordura. Para isso, use as medidas e/ou bioimpedância/dobras de forma consistente (mesmo horário, mesmas condições).
 
 ## 7. Próximo passo: Flutter (APK)
 

@@ -1,11 +1,12 @@
 import {
   state, onChange, save, allExercises, getExercise, addCustomExercise, deleteCustomExercise,
   activePlan, setActivePlan, addPlan, deletePlan, resetDefaultPlan, replaceAll, snapshot,
-  logSet, lastLog, todayKey,
+  logSet, lastLog, todayKey, cycleInfo, rotatePlan, setDone, weekDoneDays,
 } from './store.js';
 import { GROUPS, GROUP_ORDER, GROUP_TO_DB, DAY_KEYS, DAY_LABELS, DAY_FULL } from './data/exercises.js';
 import { clonePlan, blankPlan } from './data/plan.js';
 import { loadImageIndex, imageFor, secondImageFor, searchDb } from './images.js';
+import { renderProgress } from './progress.js';
 import { initFirebase, onStatus, getStatus, signIn, signOutUser } from './firebase.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -14,6 +15,7 @@ const modal = $('#modal');
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+const dBR = (d) => String(d).split('-').reverse().join('/');
 const jsDayToKey = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab'];
 const todayDayKey = () => jsDayToKey[new Date().getDay()];
 
@@ -69,7 +71,7 @@ $('#tabs').addEventListener('click', (e) => {
 function render() {
   $('#plan-name').textContent = activePlan().name;
   view.onclick = null;
-  ({ semana: renderWeek, biblioteca: renderLibrary, cronogramas: renderPlans, conta: renderAccount }[ui.tab])();
+  ({ semana: renderWeek, progresso: () => renderProgress(view, toast), biblioteca: renderLibrary, cronogramas: renderPlans, conta: renderAccount }[ui.tab])();
 }
 
 onChange(() => { if (modal.classList.contains('hidden') || ui.tab !== 'semana') render(); });
@@ -81,9 +83,13 @@ function renderWeek() {
   const plan = activePlan();
   const day = plan.days[ui.day];
   const today = todayDayKey();
+  const wk = weekDoneDays();
+  const ci = cycleInfo(plan);
+  const goal = state.weeklyGoal;
+  const dayDone = wk.days.has(ui.day);
 
   const pills = DAY_KEYS.map((k) => `
-    <button class="day ${k === ui.day ? 'on' : ''} ${k === today ? 'today' : ''}" data-day="${k}">
+    <button class="day ${k === ui.day ? 'on' : ''} ${k === today ? 'today' : ''} ${wk.days.has(k) ? 'done' : ''}" data-day="${k}">
       <b>${DAY_LABELS[k]}</b><small>${esc((plan.days[k].title || '').split(/[+(]/)[0].trim().slice(0, 9))}</small>
     </button>`).join('');
 
@@ -98,12 +104,13 @@ function renderWeek() {
       ${thumb(ex)}
       <div class="body">
         <div class="name">${esc(ex.name)}</div>
-        <div><span class="badge hot">${it.sets} × ${esc(it.reps)}</span>${it.rest ? `<span class="badge">⏱ ${it.rest}s</span>` : ''}</div>
+        <div><span class="badge hot">${it.sets} × ${esc(it.reps)}</span>${it.pin ? '<span class="badge pin">📌 fixo</span>' : ''}${it.rest ? `<span class="badge">⏱ ${it.rest}s</span>` : ''}</div>
         <div class="meta">${esc(ex.foco || ex.equip || '')}${last ? ` • última: ${esc(last.kg)}kg×${esc(last.reps)}` : ''}</div>
         <div class="actions">
           <button class="btn" data-act="info">Ver</button>
           <button class="btn" data-act="swap">Trocar</button>
           <button class="btn" data-act="edit">Editar</button>
+          <button class="btn" data-act="pin" title="Fixar: não muda ao gerar novo ciclo">${it.pin ? '📌' : '📍'}</button>
           <button class="btn danger" data-act="del">✕</button>
         </div>
       </div>
@@ -111,13 +118,24 @@ function renderWeek() {
   }).join('');
 
   view.innerHTML = `
+    <div class="card ${ci.expired ? 'banner' : ''}">
+      <div class="row"><b>Semana: ${wk.count}/${goal} treinos</b><span class="grow"></span><button class="btn" id="cycle-btn">⚙ Ciclo</button></div>
+      <div class="progress" style="margin:8px 0 6px"><i style="width:${Math.min(100, Math.round((wk.count / goal) * 100))}%"></i></div>
+      <div class="muted small">${ci.expired
+        ? `⏰ Ciclo de ${ci.months} meses concluído. Hora de renovar os exercícios!`
+        : `Ciclo: mês ${ci.month} de ${ci.months} • faltam ${ci.remaining} dias (até ${dBR(ci.end)})`}</div>
+      ${ci.expired ? '<button class="btn primary big" id="new-cycle" style="margin-top:8px">🔄 Gerar novo ciclo</button>' : ''}
+    </div>
     <div class="days" id="days">${pills}</div>
     <div class="day-head">
       <div>
         <div class="title">${esc(day.title)}</div>
         <div class="muted small">${DAY_FULL[ui.day]} • ${day.items.length} exercícios</div>
       </div>
-      <button class="btn" id="edit-day">✎ Dia</button>
+      <div class="row">
+        <button class="btn ${dayDone ? 'primary' : ''}" id="done-day">${dayDone ? '✓ Concluído' : 'Marcar concluído'}</button>
+        <button class="btn" id="edit-day">✎</button>
+      </div>
     </div>
     <div class="chips">${chips}</div>
     ${day.items.length ? '' : '<div class="empty card">Nenhum exercício neste dia.<br>Toque em “+ Adicionar exercício”.</div>'}
@@ -134,6 +152,10 @@ function renderWeek() {
     if (b) { ui.day = b.dataset.day; renderWeek(); }
   };
   $('#edit-day').onclick = () => editDaySheet();
+  $('#done-day').onclick = () => setDone(ui.day, !dayDone);
+  $('#cycle-btn').onclick = () => cycleSheet();
+  const nc = $('#new-cycle');
+  if (nc) nc.onclick = () => newCycle();
   $('#add-ex').onclick = () => pickExercise({ dayGroups: day.groups }, (exId) => {
     day.items.push({ exId, sets: 3, reps: '10-12', rest: 60 });
     save();
@@ -151,6 +173,7 @@ function renderWeek() {
       if (act === 'info') detailSheet(it.exId);
       if (act === 'swap') pickExercise({ dayGroups: day.groups, current: it.exId }, (exId) => { it.exId = exId; save(); toast('Exercício trocado'); });
       if (act === 'edit') editItemSheet(it);
+      if (act === 'pin') { it.pin = !it.pin; if (!it.pin) delete it.pin; save(); toast(it.pin ? 'Fixo: não muda na rotação' : 'Pode mudar na rotação'); }
       if (act === 'del') { day.items.splice(i, 1); save(); }
     };
   });
@@ -165,10 +188,12 @@ function editItemSheet(it) {
       <div class="grow"><label>Repetições</label><input id="f-reps" type="text" value="${esc(it.reps)}" placeholder="ex: 8-12"></div>
       <div class="grow"><label>Descanso (s)</label><input id="f-rest" type="number" min="0" step="5" value="${it.rest}"></div>
     </div>
+    <label class="row" style="margin-top:12px;color:var(--text);font-size:14px"><input type="checkbox" id="f-pin" style="width:auto" ${it.pin ? 'checked' : ''}> 📌 Exercício principal (fica fixo ao gerar novo ciclo)</label>
     <div style="margin-top:14px"><button class="btn primary big" id="ok">Salvar</button></div>
   `, {
     onMount: (s) => {
       s.querySelector('#ok').onclick = () => {
+        if (s.querySelector('#f-pin').checked) it.pin = true; else delete it.pin;
         it.sets = Math.max(1, Number(s.querySelector('#f-sets').value) || 1);
         it.reps = s.querySelector('#f-reps').value.trim() || '10';
         it.rest = Math.max(0, Number(s.querySelector('#f-rest').value) || 0);
@@ -499,6 +524,49 @@ function renderAccount() {
   };
 }
 
+function newCycle() {
+  const plan = activePlan();
+  const base = plan.name.replace(/ • ciclo \d+$/, '');
+  const n = Number(plan.name.match(/ciclo (\d+)$/)?.[1] || 1);
+  if (!confirm('Gerar o próximo ciclo? Os exercícios fixos (📌) continuam e os demais são trocados por outros do mesmo grupo. O ciclo atual fica salvo em Planos.')) return;
+  closeSheet();
+  const np = rotatePlan(plan, `${base} • ciclo ${n + 1}`);
+  const changed = np.rotatedCount;
+  delete np.rotatedCount;
+  addPlan(np);
+  ui.tab = 'semana'; syncTabs(); render();
+  toast(`Novo ciclo criado: ${changed} exercícios trocados`);
+}
+
+function cycleSheet() {
+  const plan = activePlan();
+  const ci = cycleInfo(plan);
+  openSheet(`
+    <div class="bar"><h3>Ciclo do cronograma</h3><button data-close>✕</button></div>
+    <p class="muted small">Início ${dBR(ci.start)} • termina em ${dBR(ci.end)} (${ci.remaining > 0 ? 'faltam ' + ci.remaining + ' dias' : 'concluído'}).</p>
+    <div class="row">
+      <div class="grow"><label>Duração (meses)</label><input id="c-m" type="number" min="1" max="12" value="${plan.cycleMonths}"></div>
+      <div class="grow"><label>Início</label><input id="c-s" type="date" value="${esc(plan.cycleStart)}"></div>
+      <div class="grow"><label>Meta (treinos/semana)</label><input id="c-g" type="number" min="1" max="7" value="${state.weeklyGoal}"></div>
+    </div>
+    <p class="muted small">Ao gerar um novo ciclo, os exercícios fixos (📌) continuam e os demais são trocados por outros do mesmo grupo (composto por composto, isolador por isolador), sem repetir os do ciclo atual quando houver opção.</p>
+    <div class="row" style="margin-top:12px">
+      <button class="btn grow" id="rot">🔄 Gerar novo ciclo agora</button>
+      <button class="btn primary grow" id="ok">Salvar</button>
+    </div>
+  `, {
+    onMount: (s) => {
+      s.querySelector('#ok').onclick = () => {
+        plan.cycleMonths = Math.min(12, Math.max(1, Number(s.querySelector('#c-m').value) || 6));
+        plan.cycleStart = s.querySelector('#c-s').value || plan.cycleStart;
+        state.weeklyGoal = Math.min(7, Math.max(1, Number(s.querySelector('#c-g').value) || 6));
+        save(); closeSheet();
+      };
+      s.querySelector('#rot').onclick = () => newCycle();
+    },
+  });
+}
+
 // =====================================================
 // MODO TREINO (relógio de etapas)
 // =====================================================
@@ -655,7 +723,9 @@ function confirmQuit() {
 
 function finishRun() {
   const title = run.title;
+  const dk = run.dayKey;
   stopRun();
+  setDone(dk, true);
   beep(1040, 200); setTimeout(() => beep(1320, 300), 220);
   openSheet(`
     <div class="bar"><h3>Treino concluído 🔥</h3><button data-close>✕</button></div>

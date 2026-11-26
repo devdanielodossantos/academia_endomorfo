@@ -69,7 +69,7 @@ button.chip { cursor: pointer; }
 .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .grow { flex: 1; }
 
-input[type=text], input[type=number], input[type=url], input[type=search], select, textarea {
+input[type=text], input[type=number], input[type=url], input[type=search], input[type=date], select, textarea {
   width: 100%; background: var(--card2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; outline: none;
 }
 input:focus, select:focus, textarea:focus { border-color: var(--accent); }
@@ -119,3 +119,26 @@ label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 4px
 .pick .img img { width: 100%; height: 100%; object-fit: cover; }
 .pick b { display: block; font-size: 14px; }
 .pick small { color: var(--muted); }
+
+/* Meta, ciclo, progresso */
+.day { position: relative; }
+.day.done::after { content: "✓"; position: absolute; top: 2px; right: 5px; font-size: 11px; color: var(--ok); font-weight: 900; }
+.day.on.done::after { color: #fff; }
+.banner { border-color: #ffb02066; background: #ffb02012; }
+.badge.pin { background: #2ecc7120; border-color: #2ecc7160; color: var(--ok); }
+.bars { display: flex; gap: 6px; align-items: flex-end; height: 70px; margin: 12px 0 4px; }
+.bar-col { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 2px; }
+.bar-fill { width: 100%; min-height: 3px; background: var(--card2); border: 1px solid var(--line); border-radius: 6px 6px 2px 2px; }
+.bar-fill.ok { background: var(--ok); border-color: var(--ok); }
+.bar-col small { font-size: 10px; color: var(--muted); }
+.delta { font-size: 30px; font-weight: 900; margin: 12px 0 4px; }
+.delta small { font-size: 12px; font-weight: 400; color: var(--muted); }
+.delta.up { color: var(--ok); }
+.delta.down { color: var(--danger); }
+.verdict { margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: var(--card2); border: 1px solid var(--line); font-size: 13px; line-height: 1.4; }
+.verdict.good { border-color: #2ecc7188; background: #2ecc7118; }
+.verdict.warn { border-color: #ffb02088; background: #ffb02018; }
+.hist-row { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.hist-row .btn { padding: 2px 8px; }
+.pos { color: var(--ok); font-size: 13px; }
+.neg { color: var(--danger); font-size: 13px; }

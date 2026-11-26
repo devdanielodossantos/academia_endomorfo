@@ -166,3 +166,15 @@ export const EXERCISES = [
   E('remo-ergometro', 'Remo ergométrico', 'cardio', 'Remo', 'Rowing, Stationary', 'Cardio de corpo inteiro'),
   E('escada', 'Simulador de escada', 'cardio', 'Escada', 'Stairmaster', 'Cardio com glúteo/perna'),
 ];
+
+// Exercícios compostos (multiarticulares). Usado na rotação: composto troca por composto, isolador por isolador.
+export const COMPOUND_IDS = new Set([
+  'supino-reto-barra', 'supino-reto-halteres', 'supino-inclinado-halteres', 'supino-inclinado-barra',
+  'supino-declinado-halteres', 'supino-maquina', 'flexao', 'mergulho-triceps', 'supino-fechado',
+  'puxada-aberta', 'puxada-fechada', 'remada-curvada', 'remada-baixa', 'remada-unilateral', 'remada-cavalinho',
+  'barra-fixa', 'levantamento-terra', 'remada-alta-maquina', 'remada-supinada',
+  'desenvolvimento-halteres', 'desenvolvimento-militar', 'desenvolvimento-arnold', 'desenvolvimento-maquina', 'remada-alta',
+  'agachamento-livre', 'agachamento-frontal', 'agachamento-hack', 'leg-press', 'agachamento-goblet', 'afundo',
+  'agachamento-bulgaro', 'agachamento-smith', 'stiff', 'levantamento-romeno', 'bom-dia',
+  'hip-thrust', 'ponte-gluteo', 'passada', 'agachamento-sumo',
+]);
