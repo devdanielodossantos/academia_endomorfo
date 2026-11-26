@@ -1,0 +1,11 @@
+{
+  "name": "treino-titan",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "App de treino de academia (Seg–Sáb, hipertrofia) — versão web com Firebase",
+  "scripts": {
+    "start": "npx http-server . -p 5173 -c-1",
+    "deploy": "firebase deploy"
+  }
+}

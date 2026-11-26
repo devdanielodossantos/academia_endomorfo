@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f1115">
+  <title>Treino Titan</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">TITAN<span>.treino</span></div>
+    <div id="plan-name" class="plan-name"></div>
+  </header>
+
+  <main id="view"></main>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="semana" class="on">📅<span>Semana</span></button>
+    <button data-tab="biblioteca">📚<span>Biblioteca</span></button>
+    <button data-tab="cronogramas">🗂️<span>Cronogramas</span></button>
+    <button data-tab="conta">☁️<span>Conta</span></button>
+  </nav>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true"></div>
+  <div id="toast" class="toast hidden"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
